@@ -3,16 +3,23 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev": "node server/index.js",
     "build": "nuxt build",
-    "start": "nuxt start",
+    "start": "cross-env NODE_ENV=production node server/index.js",
     "generate": "nuxt generate"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
     "ant-design-vue": "^1.7.8",
     "core-js": "^3.19.3",
+    "crypto-js": "^4.1.1",
+    "js-cookie": "^3.0.1",
+    "koa": "^2.13.4",
+    "koa-body": "^4.2.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
     "nuxt": "^2.15.8",
+    "redis": "^3.1.2",
     "vue": "^2.6.14",
     "vue-server-renderer": "^2.6.14",
     "vue-template-compiler": "^2.6.14",
@@ -21,6 +28,8 @@
   "devDependencies": {
     "@nuxtjs/proxy": "^2.1.0",
     "@nuxtjs/style-resources": "^1.2.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
+    "cross-env": "^7.0.3",
     "less": "^4.1.2",
     "less-loader": "^7.3.0"
   }

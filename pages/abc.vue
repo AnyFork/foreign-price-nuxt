@@ -4,13 +4,13 @@
     <title-item title="今日农业银行外汇牌价汇率表" :subtitle="'农行外汇牌价更新时间：' + refresh"></title-item>
     <a-divider />
     <!--广告位 -->
-    <advert-item linkUrl="https://top.talkfx.co/" :imgSrc="require('@/static/image/ad1.png')"></advert-item>
+    <advert-item :linkUrl="topLink" :imgSrc="topArr"></advert-item>
     <a-divider />
     <!--数据表格-->
     <nuxt-table :data="tableData" :columns="columns"></nuxt-table>
     <a-divider />
     <!--广告位 -->
-    <advert-item linkUrl="http://www.usdau.com/" :imgSrc="require('@/static/image/ad2.png')"></advert-item>
+    <advert-item :linkUrl="bottomLink" :imgSrc="bottomArr"></advert-item>
     <a-divider />
     <!--文本摘要 -->
     <Summary title="农业银行外汇牌价表使用说明">
@@ -24,65 +24,33 @@
 </template>
 
 <script>
+import head from '@/mixin/head'
+import symbol from '@/server/utils/symbol'
 export default {
   name: 'abc',
   layout: 'default',
-  head() {
-    return {
-      title: '今日最新建设银行汇率 建行外汇牌价查询',
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: '提供中国建设银行当日美元及人民币等15种主要货币的即时外汇牌价,建行汇率查询服务和汇率兑换计算工具。'
-        },
-        {
-          hid: 'keywords',
-          name: 'keywords',
-          content: '建设银行汇率,建设银行外汇牌价,建设银行外汇汇率,建设银行,建行'
-        }
-      ]
-    }
-  },
+  mixins: [head],
   async asyncData({ $axios }) {
-    const symbol = [
-      '美元',
-      '欧元',
-      '英镑',
-      '日元',
-      '澳大利亚元',
-      '加拿大元',
-      '瑞士法郎',
-      '新西兰元',
-      '瑞典克朗',
-      '丹麦克朗',
-      '挪威克朗',
-      '港币',
-      '澳门元',
-      '新台币',
-      '韩国元',
-      '新加坡元',
-      '泰国铢',
-      '印尼卢比',
-      '印度卢比',
-      '菲律宾比索',
-      '林吉特',
-      '阿联酋迪拉姆',
-      '沙特里亚尔',
-      '土耳其里拉',
-      '南非兰特',
-      '巴西里亚尔',
-      '卢布'
-    ]
+    //批量获取数据
+    const [seoData, data, imgData] = await Promise.all([$axios.$post('/admins/seoInfo', { code: 'abc' }), $axios.$get('/api/105-32?bankCode=ABCHINA', { timeout: 3000 }), $axios.post('/admins/imgList')])
+    //解析head数据
+    const { title = '', description = '', keywords = '' } = seoData.data
+    //解析广告信息
+    const { topImg = '', bottomImg = '', topLink = '', bottomLink = '' } = imgData.data.data
+    //数据包装
+    const topArr = topImg ? '../../' + topImg : ''
+    const bottomArr = bottomImg ? '../../' + bottomImg : ''
+    //解析列表数据
     //不包含的货币
     const filterArrays = []
     //包含的货币
     let tableData = []
-    const data = await $axios.$get('/105-32?bankCode=ABCHINA', { timeout: 3000 })
+    //刷新
+    let refresh = ''
     if (data.showapi_res_code === 0) {
       const body = data.showapi_res_body
       const list = body.codeList || []
-      const refresh = body ? body.day + ' ' + body.time : ''
+      refresh = body ? body.day + ' ' + body.time : ''
       list.forEach((element) => {
         if (element.code !== 'RMB') {
           const hui_in = element.hui_in
@@ -103,11 +71,10 @@ export default {
       tableData = tableData.concat(filterArrays)
       //去除数组中为空的元素
       tableData = tableData.filter((item) => item != '')
-      return { tableData, refresh }
     } else {
       console.log(data.showapi_res_error)
-      return { tableData, refresh: '' }
     }
+    return { tableData, refresh, title, description, keywords, topArr, bottomArr, topLink, bottomLink }
   },
   data() {
     return {

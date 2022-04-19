@@ -1,14 +1,15 @@
 <template>
   <div class="error_page">
     <div class="error_info">
-      <img :src="error.statusCode===404?require('@/static/image/404.png'):require('@/static/image/500.png')" alt="error" />
-      <span>{{error}}</span>
+      <img :src="error.statusCode === 404 ? '/image/404.png' : '/image/500.png'" alt="error" />
       <a-button type="primary" ghost @click="returnPage">返回首页</a-button>
     </div>
   </div>
 </template>
 <script>
 export default {
+  name: 'errorPage',
+  layout: 'logoLayout',
   props: {
     error: {
       type: Object,
@@ -18,19 +19,19 @@ export default {
   },
   head() {
     return {
-      title: this.error.statusCode===404?"404页面不存在":"服务器异常",
+      title: this.error.statusCode === 404 ? '404页面不存在' : '服务器异常',
       meta: [
         {
           hid: 'description',
           name: 'description',
-          content: this.error.statusCode===404?"404页面不存在":"服务器异常"
+          content: this.error.statusCode === 404 ? '404页面不存在' : '服务器异常'
         }
       ]
     }
   },
-  methods:{
-    returnPage(){
-      this.$router.push("/")
+  methods: {
+    returnPage() {
+      this.$router.push('/')
     }
   }
 }

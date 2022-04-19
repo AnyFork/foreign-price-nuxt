@@ -4,13 +4,13 @@
     <title-item title="今日中国银行外汇牌价汇率表" :subtitle="'中行外汇牌价表更新时间：' + refresh"></title-item>
     <a-divider />
     <!--广告位 -->
-    <advert-item linkUrl="https://top.talkfx.co/" :imgSrc="require('@/static/image/ad1.png')"></advert-item>
+    <advert-item :linkUrl="topLink" :imgSrc="topArr"></advert-item>
     <a-divider />
     <!--数据表格-->
     <nuxt-table :data="tableData" :columns="columns"></nuxt-table>
     <a-divider />
     <!--广告位 -->
-    <advert-item linkUrl="http://www.usdau.com/" :imgSrc="require('@/static/image/ad2.png')"></advert-item>
+    <advert-item :linkUrl="bottomLink" :imgSrc="bottomArr"></advert-item>
     <a-divider />
     <!--文本摘要 -->
     <Summary title="中国银行外汇牌价表使用说明">
@@ -24,65 +24,33 @@
 </template>
 
 <script>
+import head from '@/mixin/head'
+import symbol from '@/server/utils/symbol'
 export default {
-  head() {
-    return {
-      title: '中国银行外汇牌价_今日最新中行汇率表查询',
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: '提供今天中国银行外汇牌价，最新美元、欧元、日元、英镑等18种主要货币对人民币的即时中国银行外汇牌价表,中行汇率实时查询服务和计算工具。'
-        },
-        {
-          hid: 'keywords',
-          name: 'keywords',
-          content: '中国银行外汇牌价,中国银行汇率,外汇牌价,中国银行,中行'
-        }
-      ]
-    }
-  },
   name: 'boc',
   layout: 'default',
+  mixins: [head],
   async asyncData({ $axios }) {
-    const symbol = [
-      '美元',
-      '欧元',
-      '英镑',
-      '日元',
-      '澳大利亚元',
-      '加拿大元',
-      '瑞士法郎',
-      '新西兰元',
-      '瑞典克朗',
-      '丹麦克朗',
-      '挪威克朗',
-      '港币',
-      '澳门元',
-      '新台币',
-      '韩国元',
-      '新加坡元',
-      '泰国铢',
-      '印尼卢比',
-      '印度卢比',
-      '菲律宾比索',
-      '林吉特',
-      '阿联酋迪拉姆',
-      '沙特里亚尔',
-      '土耳其里拉',
-      '南非兰特',
-      '巴西里亚尔',
-      '卢布'
-    ]
+    //批量获取数据
+    const [seoData, data, imgData] = await Promise.all([$axios.$post('/admins/seoInfo', { code: 'boc' }), $axios.$get('/api/105-30', { timeout: 3000 }), $axios.post('/admins/imgList')])
+    //解析head数据
+    const { title = '', description = '', keywords = '' } = seoData.data
+    //解析广告信息
+    const { topImg = '', bottomImg = '', topLink = '', bottomLink = '' } = imgData.data.data
+    //数据包装
+    const topArr = topImg ? '../../' + topImg : ''
+    const bottomArr = bottomImg ? '../../' + bottomImg : ''
+    //解析列表数据
     //不包含的货币
     const filterArrays = []
     //包含的货币
     let tableData = []
-    const data = await $axios.$get('/105-30', { timeout: 3000 })
+    //刷新
+    let refresh = ''
     if (data.showapi_res_code === 0) {
       const body = data.showapi_res_body
       const list = body.list || []
-      const refresh = list[0] ? list[0].day + ' ' + list[0].time : ''
+      refresh = list[0] ? list[0].day + ' ' + list[0].time : ''
       list.forEach((element) => {
         if (element.code !== 'CNY') {
           const hui_in = element.hui_in || '-'
@@ -100,11 +68,10 @@ export default {
         }
       })
       tableData = tableData.concat(filterArrays)
-      return { tableData, refresh }
     } else {
       console.log(data.showapi_res_error)
-      return { tableData, refresh: '' }
     }
+    return { tableData, refresh, title, description, keywords, topArr, bottomArr, topLink, bottomLink }
   },
   data() {
     return {

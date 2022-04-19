@@ -117,10 +117,10 @@ export default {
       return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
     },
     async caclData(origin, dest, num) {
-      const data = await this.$axios.$get(`/105-31?fromCode=${origin}&money=${num}&toCode=${dest}`)
+      const data = await this.$axios.$get(`/api/105-31?fromCode=${origin}&money=${num}&toCode=${dest}`)
       if (data.showapi_res_code === 0) {
         const rateMoney = data.showapi_res_body.money - 0
-        this.result = `${num}${this.originName} = ${(num * rateMoney).toFixed(4)} ${this.destName}`
+        this.result = `${num}${this.originName} = ${rateMoney.toFixed(4)} ${this.destName}`
       } else {
         console.log(data.showapi_res_error)
       }

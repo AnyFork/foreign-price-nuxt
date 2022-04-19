@@ -24,3 +24,17 @@ body {
   padding: 3px 0px;
   background-color: #fff;
 }
+
+.ant-message {
+  top: 50% !important;
+}
+
+.ant-upload-list-picture-card-container {
+  width: auto !important;
+  height: auto !important;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item {
+  width: auto !important;
+  height: auto !important;
+}

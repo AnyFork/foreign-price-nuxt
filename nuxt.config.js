@@ -1,4 +1,9 @@
-export default {
+let plugins = []
+if (process.env.NODE_ENV === 'production') {
+  plugins.push('transform-remove-console')
+}
+module.exports = {
+  telemetry: false,
   server: {
     port: 9000,
     host: '127.0.0.1'
@@ -27,7 +32,13 @@ export default {
     extendRoutes(routes) {
       routes.forEach((item) => {
         if (item.path != '/') {
-          item.path = item.path + '.html'
+          if (item.children) {
+            item.children.forEach((child) => {
+              child.path = child.path + '.html'
+            })
+          } else {
+            item.path = item.path + '.html'
+          }
         }
       })
     }
@@ -56,18 +67,24 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     proxy: true,
-    prefix: '/api',
     progress: true,
     //开发模式下开启debug
     debug: process.env.NODE_ENV == 'production' ? false : true,
     withCredentials: true
   },
   proxy: {
-    '/api': {
+    '/api/': {
       target: 'https://route.showapi.com/',
       changeOrigin: true,
       pathRewrite: {
-        '^/api': '/'
+        '^/api/': '/'
+      }
+    },
+    '/admins/': {
+      target: 'http://localhost:9000',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/admins/': '/admins/'
       }
     }
   },
@@ -88,6 +105,9 @@ export default {
           }
         }
       }
+    },
+    babel: {
+      plugins
     }
   },
   styleResources: {

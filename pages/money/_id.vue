@@ -6,13 +6,13 @@
     </title-item>
     <a-divider />
     <!--广告位 -->
-    <advert-item linkUrl="https://top.talkfx.co/" :imgSrc="require('@/static/image/ad1.png')"></advert-item>
+    <advert-item :linkUrl="topLink" :imgSrc="topArr"></advert-item>
     <a-divider />
     <!--计算表单-->
     <rate-cacl :fromCodeName="fromCodeName" :toCodeName="toCodeName" :fromCode="fromCode" :toCode="toCode"></rate-cacl>
     <a-divider />
     <!--广告位 -->
-    <advert-item linkUrl="http://www.usdau.com/" :imgSrc="require('@/static/image/ad2.png')"></advert-item>
+    <advert-item :linkUrl="bottomLink" :imgSrc="bottomArr"></advert-item>
     <a-divider />
     <!--文本摘要 -->
     <Summary :title="title">
@@ -53,14 +53,19 @@ export default {
   async asyncData({ $axios, params }) {
     const fromCode = params.id.split('-')[0].toUpperCase()
     const toCode = params.id.split('-')[1].toUpperCase()
-    const data = await $axios.$get(`/105-31?fromCode=${fromCode}&money=1&toCode=${toCode}`)
+    const [data, imgData] = await Promise.all([$axios.$get(`/api/105-31?fromCode=${fromCode}&money=1&toCode=${toCode}`), $axios.post('/admins/imgList')])
+    //解析广告信息
+    const { topImg = '', bottomImg = '', topLink = '', bottomLink = '' } = imgData.data.data
+    //数据包装
+    const topArr = topImg ? '../../' + topImg : ''
+    const bottomArr = bottomImg ? '../../' + bottomImg : ''
+    let rateMoney = ''
     if (data.showapi_res_code === 0) {
-      const rateMoney = data.showapi_res_body.money - 0
-      return { rateMoney, fromCode, toCode }
+      rateMoney = data.showapi_res_body.money - 0
     } else {
       console.log(data.showapi_res_error)
-      return { rateMoney: '', fromCode, toCode }
     }
+    return { rateMoney, fromCode, toCode, topArr, bottomArr, topLink, bottomLink }
   },
   mounted() {
     this.fromCodeName = localStorage.getItem('fromCodeName')

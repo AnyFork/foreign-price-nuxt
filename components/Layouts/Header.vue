@@ -2,7 +2,7 @@
   <div class="container">
     <div class="nav">
       <a href="/" class="nav-link">
-        <img src="@/static/cnyrate.gif" />
+        <img src="/cnyrate.gif" />
       </a>
       <div class="nav-menu">
         <nuxt-link to="/" :class="clicked == '/' ? 'curr' : ''">中国银行</nuxt-link>
